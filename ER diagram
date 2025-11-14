@@ -1,0 +1,122 @@
+@startuml
+!theme plain
+
+entity users {
+  * user_id : INTEGER <<PK>>
+  --
+  * login : VARCHAR(50)
+  * password_hash : VARCHAR(255)
+  * email : VARCHAR(100)
+  * last_name : VARCHAR(50)
+  * first_name : VARCHAR(50)
+  middle_name : VARCHAR(50)
+  * role : VARCHAR(20)
+}
+
+entity students {
+  * student_id : INTEGER <<PK>>
+  --
+  * user_id : INTEGER <<FK>>
+  * group_id : INTEGER <<FK>>
+  record_book_number : VARCHAR(20)
+  * admission_year : INTEGER
+  status : VARCHAR(20)
+}
+
+entity teachers {
+  * teacher_id : INTEGER <<PK>>
+  --
+  * user_id : INTEGER <<FK>>
+  * department_id : INTEGER <<FK>>
+  academic_degree : VARCHAR(100)
+  position : VARCHAR(100)
+}
+
+entity study_groups {
+  * group_id : INTEGER <<PK>>
+  --
+  * name : VARCHAR(10)
+  * faculty_id : INTEGER <<FK>>
+  admission_year : INTEGER
+  curator_id : INTEGER <<FK>>
+}
+
+entity subjects {
+  * subject_id : INTEGER <<PK>>
+  --
+  * name : VARCHAR(255)
+  * total_hours : INTEGER
+  * semester : INTEGER
+  * control_type : VARCHAR(20)
+  description : TEXT
+}
+
+entity grades {
+  * grade_id : INTEGER <<PK>>
+  --
+  * student_id : INTEGER <<FK>>
+  * subject_id : INTEGER <<FK>>
+  * teacher_id : INTEGER <<FK>>
+  * grade_value : DECIMAL(5,2)
+  * grade_type : VARCHAR(50)
+  * grade_date : DATE
+  semester : INTEGER
+  academic_year : INTEGER
+  comments : TEXT
+}
+
+entity departments {
+  * department_id : INTEGER <<PK>>
+  --
+  * name : VARCHAR(200)
+  * faculty_id : INTEGER <<FK>>
+  head_id : INTEGER <<FK>>
+}
+
+entity faculties {
+  * faculty_id : INTEGER <<PK>>
+  --
+  * name : VARCHAR(200)
+  short_name : VARCHAR(20)
+  dean_name : VARCHAR(150)
+}
+
+entity attendance {
+  * attendance_id : INTEGER <<PK>>
+  --
+  * student_id : INTEGER <<FK>>
+  * subject_id : INTEGER <<FK>>
+  * date : DATE
+  * status : VARCHAR(20)
+  lesson_type : VARCHAR(20)
+}
+
+' Связи между сущностями
+users ||--|| students : "1:1"
+users ||--|| teachers : "1:1"
+study_groups ||--o{ students : "1:N"
+departments ||--o{ teachers : "1:N"
+faculties ||--o{ departments : "1:N"
+faculties ||--o{ study_groups : "1:N"
+students ||--o{ grades : "1:N"
+subjects ||--o{ grades : "1:N"
+teachers ||--o{ grades : "1:N"
+students ||--o{ attendance : "1:N"
+subjects ||--o{ attendance : "1:N"
+
+note right of users
+  Роли: student, teacher,
+  deanery, admin
+end note
+
+note right of grades
+  Типы оценок: lecture,
+  practice, lab, exam,
+  test
+end note
+
+note left of attendance
+  Статусы: present, absent,
+  valid_reason
+end note
+@enduml
