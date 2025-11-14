@@ -1,0 +1,73 @@
+@startuml
+!theme plain
+
+left to right direction
+
+actor "Студент" as Student
+actor "Преподаватель" as Teacher
+actor "Администратор факультета" as Deanery
+actor "Администратор системы" as Admin
+
+rectangle "Система учета успеваемости" {
+  usecase "Просмотр оценок и рейтинга" as UC1
+  usecase "Просмотр учебного плана" as UC2
+  usecase "Контроль академических задолженностей" as UC3
+  
+  usecase "Ведение электронного журнала" as UC4
+  usecase "Выставление оценок" as UC5
+  usecase "Автоматический расчет рейтинга" as UC6
+  usecase "Учет посещаемости" as UC7
+  
+  usecase "Управление учебными планами" as UC8
+  usecase "Назначение преподавателей" as UC9
+  usecase "Формирование отчетов" as UC10
+  usecase "Утверждение итоговых оценок" as UC11
+  
+  usecase "Управление пользователями" as UC12
+  usecase "Управление структурой ВУЗа" as UC13
+  usecase "Настройка системы" as UC14
+}
+
+' Связи Студента
+Student --> UC1
+Student --> UC2
+Student --> UC3
+
+' Связи Преподавателя
+Teacher --> UC4
+Teacher --> UC5
+Teacher --> UC6
+Teacher --> UC7
+Teacher --> UC1
+
+' Связи Администратора факультета
+Deanery --> UC8
+Deanery --> UC9
+Deanery --> UC10
+Deanery --> UC11
+Deanery --> UC1
+
+' Связи Администратора системы
+Admin --> UC12
+Admin --> UC13
+Admin --> UC14
+Admin --> UC10
+
+' Включенные use case
+UC5 .> UC6 : include
+UC10 .> UC8 : extend
+
+note right of Student
+  <b>Студент</b>
+  • Просмотр своих оценок
+  • Мониторинг рейтинга
+  • Контроль задолженностей
+end note
+
+note left of Teacher
+  <b>Преподаватель</b>
+  • Ведение журнала
+  • Выставление оценок
+  • Учет посещаемости
+end note
+@enduml
