@@ -1,0 +1,232 @@
+@startuml
+!theme plain
+
+title Логическая модель данных системы "Учет успеваемости учащихся"
+
+entity "Пользователи (users)" as users {
+  * user_id : INTEGER <<PK>>
+  --
+  * login : VARCHAR(50) <<UNIQUE>>
+  * password_hash : VARCHAR(255)
+  * email : VARCHAR(100)
+  * last_name : VARCHAR(50)
+  * first_name : VARCHAR(50)
+  middle_name : VARCHAR(50)
+  * role : ENUM('student', 'teacher', 'deanery', 'admin')
+  * created_at : DATETIME
+  is_active : BOOLEAN
+}
+
+entity "Студенты (students)" as students {
+  * student_id : INTEGER <<PK>>
+  --
+  * user_id : INTEGER <<FK>>
+  * group_id : INTEGER <<FK>>
+  record_book_number : VARCHAR(20) <<UNIQUE>>
+  * admission_year : YEAR
+  status : ENUM('active', 'academic_leave', 'expelled')
+  average_rating : DECIMAL(4,2)
+}
+
+entity "Преподаватели (teachers)" as teachers {
+  * teacher_id : INTEGER <<PK>>
+  --
+  * user_id : INTEGER <<FK>>
+  * department_id : INTEGER <<FK>>
+  academic_degree : VARCHAR(100)
+  position : VARCHAR(100)
+  work_experience : INTEGER
+}
+
+entity "Учебные группы (study_groups)" as groups {
+  * group_id : INTEGER <<PK>>
+  --
+  * name : VARCHAR(10)
+  * faculty_id : INTEGER <<FK>>
+  * admission_year : YEAR
+  curator_id : INTEGER <<FK>>
+  student_count : INTEGER
+}
+
+entity "Факультеты (faculties)" as faculties {
+  * faculty_id : INTEGER <<PK>>
+  --
+  * name : VARCHAR(200)
+  short_name : VARCHAR(20)
+  dean_name : VARCHAR(150)
+  contact_email : VARCHAR(100)
+}
+
+entity "Кафедры (departments)" as departments {
+  * department_id : INTEGER <<PK>>
+  --
+  * name : VARCHAR(200)
+  * faculty_id : INTEGER <<FK>>
+  head_id : INTEGER <<FK>>
+  contact_phone : VARCHAR(20)
+}
+
+entity "Дисциплины (subjects)" as subjects {
+  * subject_id : INTEGER <<PK>>
+  --
+  * name : VARCHAR(255)
+  * total_hours : INTEGER
+  * semester : TINYINT
+  * control_type : ENUM('exam', 'test', 'diff_test')
+  description : TEXT
+  course_type : ENUM('required', 'elective')
+}
+
+entity "Оценки (grades)" as grades {
+  * grade_id : BIGINT <<PK>>
+  --
+  * student_id : INTEGER <<FK>>
+  * subject_id : INTEGER <<FK>>
+  * teacher_id : INTEGER <<FK>>
+  * grade_value : DECIMAL(5,2)
+  * grade_type : ENUM('lecture', 'practice', 'lab', 'exam', 'test')
+  * grade_date : DATE
+  semester : TINYINT
+  academic_year : YEAR
+  comments : TEXT
+  is_final : BOOLEAN
+}
+
+entity "Посещаемость (attendance)" as attendance {
+  * attendance_id : INTEGER <<PK>>
+  --
+  * student_id : INTEGER <<FK>>
+  * subject_id : INTEGER <<FK>>
+  * teacher_id : INTEGER <<FK>>
+  * date : DATE
+  * status : ENUM('present', 'absent', 'valid_reason')
+  lesson_type : ENUM('lecture', 'practice', 'lab')
+  lesson_number : TINYINT
+}
+
+entity "Учебные планы (curriculums)" as curriculums {
+  * curriculum_id : INTEGER <<PK>>
+  --
+  * name : VARCHAR(300)
+  specialty_code : VARCHAR(20)
+  education_level : VARCHAR(50)
+  * effective_from : YEAR
+  is_active : BOOLEAN
+}
+
+entity "Дисциплины учебного плана (curriculum_subjects)" as curriculum_subjects {
+  * id : INTEGER <<PK>>
+  --
+  * curriculum_id : INTEGER <<FK>>
+  * subject_id : INTEGER <<FK>>
+  * semester : TINYINT
+  hours_lecture : INTEGER
+  hours_practice : INTEGER
+  hours_lab : INTEGER
+  credits : DECIMAL(3,1)
+}
+
+entity "Назначения курсов (assigned_courses)" as assigned_courses {
+  * assignment_id : INTEGER <<PK>>
+  --
+  * teacher_id : INTEGER <<FK>>
+  * group_id : INTEGER <<FK>>
+  * subject_id : INTEGER <<FK>>
+  * academic_year : YEAR
+  * semester : TINYINT
+  hours_per_week : INTEGER
+}
+
+entity "Итоговые оценки (final_grades)" as final_grades {
+  * final_grade_id : INTEGER <<PK>>
+  --
+  * student_id : INTEGER <<FK>>
+  * subject_id : INTEGER <<FK>>
+  * semester : TINYINT
+  * academic_year : YEAR
+  final_grade : VARCHAR(10)
+  is_credited : BOOLEAN
+  is_confirmed : BOOLEAN
+  confirmed_by : INTEGER <<FK>>
+  confirmed_at : DATETIME
+}
+
+entity "Академические периоды (academic_periods)" as academic_periods {
+  * period_id : INTEGER <<PK>>
+  --
+  * academic_year : YEAR
+  * semester : TINYINT
+  * start_date : DATE
+  * end_date : DATE
+  is_current : BOOLEAN
+  exam_session_start : DATE
+  exam_session_end : DATE
+}
+
+' Основные связи
+users ||--|| students : "1:1"
+users ||--|| teachers : "1:1"
+groups ||--o{ students : "1:N"
+faculties ||--o{ groups : "1:N"
+faculties ||--o{ departments : "1:N"
+departments ||--o{ teachers : "1:N"
+students ||--o{ grades : "1:N"
+subjects ||--o{ grades : "1:N"
+teachers ||--o{ grades : "1:N"
+students ||--o{ attendance : "1:N"
+subjects ||--o{ attendance : "1:N"
+teachers ||--o{ attendance : "1:N"
+curriculums ||--o{ curriculum_subjects : "1:N"
+subjects ||--o{ curriculum_subjects : "1:N"
+teachers ||--o{ assigned_courses : "1:N"
+groups ||--o{ assigned_courses : "1:N"
+subjects ||--o{ assigned_courses : "1:N"
+students ||--o{ final_grades : "1:N"
+subjects ||--o{ final_grades : "1:N"
+
+' Дополнительные связи
+teachers ||--o{ groups : "курирует 1:N"
+teachers ||--o{ final_grades : "утверждает 1:N"
+
+note right of users
+  <b>Пользователи системы</b>
+  Единая таблица для всех ролей
+  Централизованная аутентификация
+end note
+
+note left of grades
+  <b>Система оценок</b>
+  • Лекции: 0-10 баллов
+  • Практики: 0-10 баллов
+  • Лабораторные: 0-10 баллов
+  • Экзамены: 2-5 баллов
+  • Зачеты: зачет/незачет
+end note
+
+note right of attendance
+  <b>Учет посещаемости</b>
+  Статусы:
+  • present - присутствовал
+  • absent - отсутствовал
+  • valid_reason - уважительная причина
+end note
+
+note left of curriculums
+  <b>Учебные планы</b>
+  Содержит дисциплины по семестрам
+  Назначается на учебные группы
+  Определяет учебную нагрузку
+end note
+
+note bottom of academic_periods
+  <b>Академические периоды</b>
+  Управление учебным годом
+  Контроль сроков сессий
+  Автоматизация процессов
+end note
+
+' Индексы для оптимизации
+note on link
+  Индексы созданы для часто\nиспользуемых полей:\nuser_id, group_id, subject_id,\nstudent_id, teacher_id
+end note
+@enduml
