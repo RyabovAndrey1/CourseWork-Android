@@ -1,0 +1,75 @@
+@startuml
+!theme plain
+
+package "View Layer" {
+  [Activity] as Activity
+  [Fragment] as Fragment  
+  [XML Layout] as Layout
+  [Adapter] as Adapter
+}
+
+package "Controller Layer" {
+  [Activity Controller] as AController
+  [Fragment Controller] as FController
+  [Business Logic] as Business
+  [Navigation Manager] as Navigation
+}
+
+package "Model Layer" {
+  [Room Database] as Database
+  [Entity Classes] as Entities
+  [DAO Interfaces] as DAO
+  [Repository] as Repository
+}
+
+package "External Services" {
+  [PDF Generator] as PDF
+  [File System] as FileSystem
+  [SharedPreferences] as Prefs
+}
+
+' Связи View-Controller
+Activity --> AController : делегирует события
+Fragment --> FController : делегирует события
+AController --> Activity : обновляет UI
+FController --> Fragment : обновляет UI
+
+' Связи Controller-Model
+AController --> Business : вызывает бизнес-логику
+FController --> Business : вызывает бизнес-логику
+Business --> Repository : операции с данными
+Navigation --> AController : управление навигацией
+
+' Связи Model-Data
+Repository --> DAO : доступ к БД
+DAO --> Database : SQL операции
+Repository --> PDF : генерация отчетов
+Repository --> FileSystem : работа с файлами
+Repository --> Prefs : настройки приложения
+
+' Обратные связи данных
+Database --> DAO : возвращает данные
+DAO --> Repository : возвращает данные
+Repository --> Business : возвращает результаты
+
+note right of AController
+  <b>Activity Controller</b>
+  • Обработка кликов
+  • Управление жизненным циклом
+  • Координация работы компонентов
+end note
+
+note left of Business
+  <b>Business Logic</b>
+  • Расчет академического рейтинга
+  • Валидация оценок
+  • Бизнес-правила системы
+end note
+
+note right of Database
+  <b>Room Database</b>
+  • SQLite + Room ORM
+  • Локальное хранение данных
+  • Миграции схемы БД
+end note
+@enduml
