@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="ru">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${pageTitle + ' — Учёт успеваемости'}">Кафедра</title>
+    <link rel="stylesheet" th:href="@{/css/web.css}"/>
+</head>
+<body>
+    <header th:replace="~{web/fragments/layout :: header(activeSection=${activeSection})}"></header>
+    <div th:replace="~{web/fragments/layout :: role-tabs(activeTab=${activeTab})}"></div>
+    <div class="main-wrap">
+        <h1 class="page-title" th:text="${pageTitle}">Кафедра</h1>
+        <p th:if="${message}" class="alert alert-success" th:text="${message}"></p>
+        <p th:if="${error}" class="alert alert-error" th:text="${error}"></p>
+        <div class="card">
+            <form th:action="${department != null && department.departmentId != null} ? @{/web/departments/edit/{id}(id=${department.departmentId})} : @{/web/departments/create}" th:method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <div class="form-group">
+                    <label for="name">Название</label>
+                    <input id="name" name="name" type="text" required th:value="${department != null} ? ${department.name} : ''"/>
+                </div>
+                <div class="form-group">
+                    <label for="facultyId">Факультет</label>
+                    <select id="facultyId" name="facultyId">
+                        <option value="">— не выбран —</option>
+                        <option th:each="f : ${faculties}" th:value="${f.facultyId}" th:text="${f.name}"
+                                th:selected="${department != null && department.faculty != null && department.faculty.facultyId == f.facultyId}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="headName">Заведующий</label>
+                    <input id="headName" name="headName" type="text" th:value="${department != null} ? ${department.headName} : ''"/>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                    <a th:href="@{/web/departments}" class="btn btn-secondary">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

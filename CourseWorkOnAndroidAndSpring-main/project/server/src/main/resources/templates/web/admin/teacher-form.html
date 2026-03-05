@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="ru">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${pageTitle + ' — Учёт успеваемости'}">Преподаватель</title>
+    <link rel="stylesheet" th:href="@{/css/web.css}"/>
+</head>
+<body>
+    <header th:replace="~{web/fragments/layout :: header(activeSection=${activeSection})}"></header>
+    <div th:replace="~{web/fragments/layout :: role-tabs(activeTab=${activeTab})}"></div>
+    <div class="main-wrap">
+        <h1 class="page-title" th:text="${pageTitle}">Преподаватель</h1>
+        <p th:if="${message}" class="alert alert-success" th:text="${message}"></p>
+        <p th:if="${error}" class="alert alert-error" th:text="${error}"></p>
+        <div class="card">
+            <form th:action="${teacher != null && teacher.teacherId != null} ? @{/web/admin/teachers/edit/{id}(id=${teacher.teacherId})} : @{/web/admin/teachers/create}" th:method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <div class="form-group" th:if="${teacher == null}">
+                    <label for="userId">Пользователь (логин)</label>
+                    <select id="userId" name="userId" required>
+                        <option value="">— выберите пользователя с ролью «Преподаватель» —</option>
+                        <option th:each="u : ${usersWithoutTeacher}" th:value="${u.userId}" th:text="${u.login + ' — ' + (u.lastName + ' ' + u.firstName)}"></option>
+                    </select>
+                    <p class="text-muted" th:if="${#lists.isEmpty(usersWithoutTeacher)}">Нет пользователей с ролью «Преподаватель» без записи преподавателя. Создайте пользователя в разделе «Пользователи» с ролью TEACHER.</p>
+                </div>
+                <div class="form-group" th:if="${teacher != null && teacher.user != null}">
+                    <label>Пользователь</label>
+                    <p class="form-static" th:text="${teacher.user.login + ' — ' + teacher.user.lastName + ' ' + teacher.user.firstName}">—</p>
+                </div>
+                <div class="form-group">
+                    <label for="departmentId">Кафедра</label>
+                    <select id="departmentId" name="departmentId">
+                        <option value="">— не выбрана —</option>
+                        <option th:each="d : ${departments}" th:value="${d.departmentId}" th:text="${d.name + (d.faculty != null ? ' (' + d.faculty.name + ')' : '')}"
+                                th:selected="${teacher != null && teacher.department != null && teacher.department.departmentId == d.departmentId}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="academicDegree">Учёная степень</label>
+                    <input id="academicDegree" name="academicDegree" type="text" th:value="${teacher != null} ? ${teacher.academicDegree} : ''" placeholder="например: Кандидат технических наук"/>
+                </div>
+                <div class="form-group">
+                    <label for="position">Должность</label>
+                    <input id="position" name="position" type="text" th:value="${teacher != null} ? ${teacher.position} : ''" placeholder="например: Доцент"/>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                    <a th:href="@{/web/admin/teachers}" class="btn btn-secondary">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

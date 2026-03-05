@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="ru">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Главная — Учёт успеваемости</title>
+    <link rel="stylesheet" th:href="@{/css/web.css}"/>
+</head>
+<body>
+    <header th:replace="~{web/fragments/layout :: header(activeSection=${'dashboard'})}"></header>
+    <div th:replace="~{web/fragments/layout :: role-tabs(activeTab=${'dashboard'})}"></div>
+    <div class="main-wrap">
+        <h1 class="page-title">Главная</h1>
+        <div class="card">
+            <p>Добро пожаловать. Выберите раздел в меню или ниже.</p>
+            <!-- Админ: полный доступ -->
+            <ul class="dashboard-links" sec:authorize="hasRole('ADMIN')">
+                <li><a th:href="@{/web/students}">Студенты</a></li>
+                <li><a th:href="@{/web/groups}">Группы</a></li>
+                <li><a th:href="@{/web/faculties}">Факультеты</a></li>
+                <li><a th:href="@{/web/subjects}">Дисциплины</a></li>
+                <li><a th:href="@{/web/admin/assignments}">Назначение преподавателя на дисциплину</a></li>
+                <li><a th:href="@{/web/teacher/journal}">Журнал успеваемости</a></li>
+                <li><a th:href="@{/web/admin/users}">Пользователи</a></li>
+                <li><a th:href="@{/web/admin/teachers}">Преподаватели</a></li>
+                <li><a th:href="@{/web/admin/stats}">Статистика</a></li>
+                <li><a th:href="@{/web/admin/test-email}">Проверка почты</a></li>
+                <li><a th:href="@{/web/reports}">Отчёты (Excel / PDF)</a></li>
+            </ul>
+            <!-- Деканат: без пользователей и статистики -->
+            <ul class="dashboard-links" sec:authorize="hasRole('DEANERY')">
+                <li><a th:href="@{/web/students}">Студенты</a></li>
+                <li><a th:href="@{/web/groups}">Группы</a></li>
+                <li><a th:href="@{/web/faculties}">Факультеты</a></li>
+                <li><a th:href="@{/web/subjects}">Дисциплины</a></li>
+                <li><a th:href="@{/web/admin/assignments}">Назначение преподавателя на дисциплину</a></li>
+                <li><a th:href="@{/web/teacher/journal}">Журнал успеваемости</a></li>
+                <li><a th:href="@{/web/admin/teachers}">Преподаватели</a></li>
+                <li><a th:href="@{/web/reports}">Отчёты (Excel / PDF)</a></li>
+            </ul>
+            <!-- Преподаватель: группы, журнал, отчёты -->
+            <ul class="dashboard-links" sec:authorize="hasRole('TEACHER')">
+                <li><a th:href="@{/web/groups}">Группы</a></li>
+                <li><a th:href="@{/web/teacher/journal}">Журнал (успеваемость, баллы 60+40)</a></li>
+                <li><a th:href="@{/web/reports}">Отчёты по группе / по студенту (Excel / PDF)</a></li>
+            </ul>
+            <!-- Студент: только своё -->
+            <ul class="dashboard-links" sec:authorize="hasRole('STUDENT')">
+                <li><a th:href="@{/web/panel/student}">Мой кабинет</a></li>
+                <li><a th:href="@{/web/reports}">Мой отчёт (Excel / PDF)</a></li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${pageTitle != null ? pageTitle + ' — ' : ''}Учёт успеваемости">Учёт успеваемости</title>
+    <link rel="stylesheet" th:href="@{/css/web.css}"/>
+</head>
+<body>
+    <!-- Фрагмент шапки и навигации (для авторизованных). По ролям: Админ — всё; Деканат — без Пользователей и Статистики; Преподаватель — только Группы, Журнал, Отчёты; Студент — Главная, Отчёты -->
+    <header class="app-header" th:fragment="header(activeSection)" sec:authorize="isAuthenticated()">
+        <a th:href="@{/web/dashboard}" class="brand">Учёт успеваемости</a>
+        <nav class="nav">
+            <a th:href="@{/web/dashboard}" th:classappend="${activeSection == 'dashboard'} ? 'active'">Главная</a>
+            <!-- Админ и Деканат: справочники и управление -->
+            <a th:href="@{/web/students}" sec:authorize="hasAnyRole('ADMIN', 'DEANERY')" th:classappend="${activeSection == 'students'} ? 'active'">Студенты</a>
+            <a th:href="@{/web/groups}" sec:authorize="hasAnyRole('ADMIN', 'DEANERY', 'TEACHER')" th:classappend="${activeSection == 'groups'} ? 'active'">Группы</a>
+            <a th:href="@{/web/faculties}" sec:authorize="hasAnyRole('ADMIN', 'DEANERY')" th:classappend="${activeSection == 'faculties'} ? 'active'">Факультеты</a>
+            <a th:href="@{/web/departments}" sec:authorize="hasAnyRole('ADMIN', 'DEANERY')" th:classappend="${activeSection == 'departments'} ? 'active'">Кафедры</a>
+            <a th:href="@{/web/subjects}" sec:authorize="hasAnyRole('ADMIN', 'DEANERY')" th:classappend="${activeSection == 'subjects'} ? 'active'">Дисциплины</a>
+            <a th:href="@{/web/teacher/journal}" sec:authorize="hasAnyRole('ADMIN', 'DEANERY', 'TEACHER')" th:classappend="${activeSection == 'journal'} ? 'active'">Журнал</a>
+            <a th:href="@{/web/admin/stats}" sec:authorize="hasRole('ADMIN')" th:classappend="${activeSection == 'stats'} ? 'active'">Статистика</a>
+            <a th:href="@{/web/admin/users}" sec:authorize="hasRole('ADMIN')" th:classappend="${activeSection == 'users'} ? 'active'">Пользователи</a>
+            <a th:href="@{/web/admin/teachers}" sec:authorize="hasAnyRole('ADMIN', 'DEANERY')" th:classappend="${activeSection == 'teachers'} ? 'active'">Преподаватели</a>
+            <a th:href="@{/web/admin/assignments}" sec:authorize="hasAnyRole('ADMIN', 'DEANERY')" th:classappend="${activeSection == 'assignments'} ? 'active'">Назначения</a>
+            <a th:href="@{/web/admin/test-email}" sec:authorize="hasRole('ADMIN')" th:classappend="${activeSection == 'test-email'} ? 'active'">Проверка почты</a>
+            <a th:href="@{/web/reports}" th:classappend="${activeSection == 'reports'} ? 'active'">Отчёты</a>
+            <a th:href="@{/web/student/schedule}" sec:authorize="hasRole('STUDENT')" th:classappend="${activeSection == 'schedule'} ? 'active'">Расписание</a>
+            <span class="sep">|</span>
+            <span class="user-info">
+                <span th:text="${userName != null ? userName : 'Пользователь'}">user</span>
+                <span class="role-badge" th:text="${userRole == 'ADMIN' ? 'Админ' : userRole == 'DEANERY' ? 'Деканат' : userRole == 'TEACHER' ? 'Преподаватель' : 'Студент'}">Роль</span>
+            </span>
+            <form th:action="@{/web/logout}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn-logout">Выйти</button>
+            </form>
+        </nav>
+    </header>
+
+    <!-- Единый блок вкладок по роли: одна полоса, без пустых блоков для других ролей -->
+    <div class="tabs-wrap" th:fragment="role-tabs(activeTab)">
+        <ul class="tabs" sec:authorize="hasRole('ADMIN')">
+            <li><a th:href="@{/web/students}" th:classappend="${activeTab == 'students'} ? 'active'" href="#">Студенты</a></li>
+            <li><a th:href="@{/web/groups}" th:classappend="${activeTab == 'groups'} ? 'active'" href="#">Группы</a></li>
+            <li><a th:href="@{/web/faculties}" th:classappend="${activeTab == 'faculties'} ? 'active'" href="#">Факультеты</a></li>
+            <li><a th:href="@{/web/departments}" th:classappend="${activeTab == 'departments'} ? 'active'" href="#">Кафедры</a></li>
+            <li><a th:href="@{/web/subjects}" th:classappend="${activeTab == 'subjects'} ? 'active'" href="#">Дисциплины</a></li>
+            <li><a th:href="@{/web/admin/users}" th:classappend="${activeTab == 'users'} ? 'active'" href="#">Пользователи</a></li>
+            <li><a th:href="@{/web/admin/teachers}" th:classappend="${activeTab == 'teachers'} ? 'active'" href="#">Преподаватели</a></li>
+            <li><a th:href="@{/web/admin/stats}" th:classappend="${activeTab == 'stats'} ? 'active'" href="#">Статистика</a></li>
+            <li><a th:href="@{/web/admin/assignments}" th:classappend="${activeTab == 'assignments'} ? 'active'" href="#">Назначения</a></li>
+            <li><a th:href="@{/web/admin/test-email}" th:classappend="${activeTab == 'test-email'} ? 'active'" href="#">Проверка почты</a></li>
+            <li><a th:href="@{/web/reports}" th:classappend="${activeTab == 'reports'} ? 'active'" href="#">Отчёты</a></li>
+        </ul>
+        <ul class="tabs" sec:authorize="hasRole('DEANERY')">
+            <li><a th:href="@{/web/students}" th:classappend="${activeTab == 'students'} ? 'active'" href="#">Студенты</a></li>
+            <li><a th:href="@{/web/groups}" th:classappend="${activeTab == 'groups'} ? 'active'" href="#">Группы</a></li>
+            <li><a th:href="@{/web/faculties}" th:classappend="${activeTab == 'faculties'} ? 'active'" href="#">Факультеты</a></li>
+            <li><a th:href="@{/web/departments}" th:classappend="${activeTab == 'departments'} ? 'active'" href="#">Кафедры</a></li>
+            <li><a th:href="@{/web/subjects}" th:classappend="${activeTab == 'subjects'} ? 'active'" href="#">Дисциплины</a></li>
+            <li><a th:href="@{/web/teacher/journal}" th:classappend="${activeTab == 'journal'} ? 'active'" href="#">Журнал</a></li>
+            <li><a th:href="@{/web/admin/teachers}" th:classappend="${activeTab == 'teachers'} ? 'active'" href="#">Преподаватели</a></li>
+            <li><a th:href="@{/web/admin/assignments}" th:classappend="${activeTab == 'assignments'} ? 'active'" href="#">Назначения</a></li>
+            <li><a th:href="@{/web/reports}" th:classappend="${activeTab == 'reports'} ? 'active'" href="#">Отчёты</a></li>
+        </ul>
+        <ul class="tabs" sec:authorize="hasRole('TEACHER')">
+            <li><a th:href="@{/web/groups}" th:classappend="${activeTab == 'groups'} ? 'active'" href="#">Группы</a></li>
+            <li><a th:href="@{/web/teacher/journal}" th:classappend="${activeTab == 'journal'} ? 'active'" href="#">Журнал</a></li>
+            <li><a th:href="@{/web/reports}" th:classappend="${activeTab == 'reports'} ? 'active'" href="#">Отчёты</a></li>
+        </ul>
+    </div>
+</body>
+</html>

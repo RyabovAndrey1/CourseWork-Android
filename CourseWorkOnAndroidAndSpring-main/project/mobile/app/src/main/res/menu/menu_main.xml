@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- BottomNavigationView поддерживает не более 5 пунктов. Остальное вынесено в «Ещё». -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_more"
+        android:icon="@android:drawable/ic_menu_more"
+        android:title="@string/nav_more"
+        android:visibility="gone" />
+    <item
+        android:id="@+id/nav_groups"
+        android:icon="@drawable/ic_nav_groups"
+        android:title="@string/nav_groups" />
+    <item
+        android:id="@+id/nav_subjects"
+        android:icon="@drawable/ic_nav_subjects"
+        android:title="@string/nav_subjects" />
+    <item
+        android:id="@+id/nav_grades"
+        android:icon="@drawable/ic_nav_grades"
+        android:title="@string/nav_grades" />
+    <item
+        android:id="@+id/nav_profile"
+        android:icon="@drawable/ic_nav_profile"
+        android:title="@string/nav_profile" />
+</menu>

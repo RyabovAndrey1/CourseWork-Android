@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <application
+        android:name=".StudentPerformanceApp"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.StudentPerformance"
+        android:usesCleartextTraffic="true"
+        tools:targetApi="34">
+
+        <activity
+            android:name=".ui.AuthActivity"
+            android:exported="false"
+            android:theme="@style/Theme.StudentPerformance" />
+
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.StudentPerformance">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ui.grades.GradeDetailActivity"
+            android:exported="false"
+            android:label="@string/grade_details"
+            android:theme="@style/Theme.StudentPerformance" />
+
+        <activity
+            android:name=".ui.grades.AddGradeActivity"
+            android:exported="false"
+            android:label="@string/add_grade"
+            android:theme="@style/Theme.StudentPerformance" />
+
+        <activity
+            android:name=".ui.subjects.SubjectDetailActivity"
+            android:exported="false"
+            android:label="@string/subject_details"
+            android:theme="@style/Theme.StudentPerformance" />
+
+        <activity
+            android:name=".ui.profile.ProfileActivity"
+            android:exported="false"
+            android:label="@string/profile"
+            android:theme="@style/Theme.StudentPerformance" />
+
+        <activity
+            android:name=".ui.admin.AdminPanelActivity"
+            android:exported="false"
+            android:label="@string/admin_panel"
+            android:theme="@style/Theme.StudentPerformance" />
+
+        <activity
+            android:name=".ui.groups.GroupDetailActivity"
+            android:exported="false"
+            android:label="@string/group_details"
+            android:theme="@style/Theme.StudentPerformance" />
+
+        <activity
+            android:name=".ui.students.StudentDetailActivity"
+            android:exported="false"
+            android:label="@string/student_details"
+            android:theme="@style/Theme.StudentPerformance" />
+
+        <activity android:name=".ui.admin.FacultiesListActivity" android:exported="false" android:label="@string/faculties_title" />
+        <activity android:name=".ui.admin.FacultyFormActivity" android:exported="false" android:label="Факультет" />
+        <activity android:name=".ui.admin.UsersListActivity" android:exported="false" android:label="@string/users_title" />
+        <activity android:name=".ui.admin.UserFormActivity" android:exported="false" android:label="Пользователь" />
+        <activity android:name=".ui.admin.StudentsListActivity" android:exported="false" android:label="@string/students_title" />
+        <activity android:name=".ui.admin.StudentFormActivity" android:exported="false" android:label="Студент" />
+        <activity android:name=".ui.admin.GroupsListActivity" android:exported="false" android:label="@string/groups_title" />
+        <activity android:name=".ui.admin.GroupFormActivity" android:exported="false" android:label="Группа" />
+        <activity android:name=".ui.admin.DepartmentsListActivity" android:exported="false" android:label="@string/departments_title" />
+        <activity android:name=".ui.admin.DepartmentFormActivity" android:exported="false" android:label="Кафедра" />
+        <activity android:name=".ui.admin.SubjectsListActivity" android:exported="false" android:label="@string/subjects_title" />
+        <activity android:name=".ui.admin.SubjectFormActivity" android:exported="false" android:label="Дисциплина" />
+        <activity android:name=".ui.admin.TeachersListActivity" android:exported="false" android:label="@string/teachers_title" />
+        <activity android:name=".ui.admin.TeacherFormActivity" android:exported="false" android:label="Преподаватель" />
+        <activity android:name=".ui.admin.JournalListActivity" android:exported="false" android:label="@string/journal_title" />
+        <activity android:name=".ui.admin.JournalActivity" android:exported="false" android:label="@string/journal_add_or_edit" />
+        <activity android:name=".ui.admin.ReportsActivity" android:exported="false" android:label="@string/reports_title" />
+
+        <service
+            android:name=".service.AppFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+    </application>
+
+</manifest>

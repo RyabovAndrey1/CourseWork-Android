@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${pageTitle + ' — Учёт успеваемости'}">Группа</title>
+    <link rel="stylesheet" th:href="@{/css/web.css}"/>
+</head>
+<body>
+    <header th:replace="~{web/fragments/layout :: header(activeSection=${activeSection})}"></header>
+    <div th:replace="~{web/fragments/layout :: role-tabs(activeTab=${activeTab})}"></div>
+    <div class="main-wrap">
+        <h1 class="page-title" th:text="${pageTitle}">Группа</h1>
+        <p th:if="${message}" class="alert alert-success" th:text="${message}"></p>
+        <p th:if="${error}" class="alert alert-error" th:text="${error}"></p>
+        <div class="card">
+            <form th:action="${group != null && group.groupId != null} ? @{/web/groups/edit/{id}(id=${group.groupId})} : @{/web/groups/create}" th:method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <div class="form-group">
+                    <label for="name">Название</label>
+                    <input id="name" name="name" type="text" required th:value="${group != null} ? ${group.name} : ''" maxlength="10"/>
+                </div>
+                <div class="form-group">
+                    <label for="facultyId">Факультет</label>
+                    <select id="facultyId" name="facultyId">
+                        <option value="">— не выбран —</option>
+                        <option th:each="f : ${faculties}" th:value="${f.facultyId}" th:text="${f.name}"
+                                th:selected="${group != null && group.faculty != null && group.faculty.facultyId == f.facultyId}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="admissionYear">Год набора</label>
+                    <input id="admissionYear" name="admissionYear" type="number" required min="2000" max="2100"
+                           th:value="${group != null} ? ${group.admissionYear} : ''"/>
+                </div>
+                <div class="form-group">
+                    <label for="specialization">Специализация</label>
+                    <input id="specialization" name="specialization" type="text" th:value="${group != null} ? ${group.specialization} : ''"/>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                    <a th:href="@{/web/groups}" class="btn btn-secondary">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

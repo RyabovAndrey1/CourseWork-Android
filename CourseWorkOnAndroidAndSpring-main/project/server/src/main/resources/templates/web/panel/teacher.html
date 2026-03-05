@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="ru">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Панель преподавателя — Учёт успеваемости</title>
+    <link rel="stylesheet" th:href="@{/css/web.css}"/>
+</head>
+<body>
+    <header th:replace="~{web/fragments/layout :: header(activeSection=${'dashboard'})}"></header>
+    <div class="main-wrap">
+        <h1 class="page-title">Панель преподавателя</h1>
+        <div class="profile-card">
+            <div class="avatar" th:text="${#strings.substring(userName, 0, 1)} ?: 'П'">П</div>
+            <div class="name" th:text="${userName}">Преподаватель</div>
+            <div class="meta">Ведение журнала, выставление оценок</div>
+        </div>
+        <div class="card">
+            <h2>Разделы</h2>
+            <ul class="dashboard-links">
+                <li><a th:href="@{/web/teacher/journal}">Журнал (оценки и посещаемость)</a></li>
+                <li><a th:href="@{/web/students}">Список студентов</a></li>
+                <li><a th:href="@{/web/groups}">Группы</a></li>
+                <li><a th:href="@{/web/faculties}">Факультеты</a></li>
+                <li><a th:href="@{/web/subjects}">Дисциплины</a></li>
+                <li><a th:href="@{/web/reports}">Отчёты (Excel / PDF)</a></li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

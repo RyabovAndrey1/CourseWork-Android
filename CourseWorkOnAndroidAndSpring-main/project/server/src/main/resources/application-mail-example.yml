@@ -1,0 +1,18 @@
+# Пример настроек почты. Скопируйте в application.yml (в секцию spring:) или задайте переменные окружения.
+# После настройки письма будут отправляться: при входе, при создании отчёта, при смене/сбросе пароля.
+#
+# Важно: без spring.mail.host приложение запустится, но письма не отправляются (в логе будет сообщение).
+
+spring:
+  mail:
+    host: smtp.mail.ru          # Mail.ru: smtp.mail.ru. Yandex: smtp.yandex.ru. Gmail: smtp.gmail.com
+    port: 587
+    username: your-email@mail.ru # ваш реальный адрес (на него придут письма от системы)
+    password: your-password     # для Mail.ru и Yandex: "пароль приложения", не основной пароль
+
+# Переменные окружения (IntelliJ: Run -> Edit Configurations -> Environment variables):
+#   MAIL_HOST=smtp.mail.ru
+#   MAIL_USER=your-email@mail.ru
+#   MAIL_PASSWORD=пароль_приложения
+#
+# app.mail.from можно не задавать — тогда отправитель = spring.mail.username (рекомендуется).

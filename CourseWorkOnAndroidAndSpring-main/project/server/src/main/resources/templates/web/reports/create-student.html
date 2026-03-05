@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Мой отчёт — Учёт успеваемости</title>
+    <link rel="stylesheet" th:href="@{/css/web.css}"/>
+</head>
+<body>
+    <header th:replace="~{web/fragments/layout :: header(activeSection=${activeSection})}"></header>
+    <div th:replace="~{web/fragments/layout :: role-tabs(activeTab=${activeTab})}"></div>
+    <div class="main-wrap">
+        <h1 class="page-title">Создать мой отчёт</h1>
+        <p th:if="${error}" class="alert alert-error" th:text="${error}"></p>
+
+        <div class="card">
+            <p class="text-muted">Укажите период, при необходимости выберите одну дисциплину или оставьте «Все» — и формат файла. Отчёт будет сформирован только по вашим данным.</p>
+            <form th:action="@{/web/reports/create}" method="post" style="max-width: 500px;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="hidden" name="reportType" value="STUDENT"/>
+                <div class="form-group">
+                    <label>Период (дата с) <span class="required">*</span></label>
+                    <input type="date" name="periodFrom" required/>
+                </div>
+                <div class="form-group">
+                    <label>Период (дата по) <span class="required">*</span></label>
+                    <input type="date" name="periodTo" required/>
+                </div>
+                <div class="form-group">
+                    <label>Дисциплина</label>
+                    <select name="subjectId">
+                        <option value="">Все (по всем дисциплинам)</option>
+                        <option th:each="s : ${studentSubjects}" th:value="${s.id}" th:text="${s.name}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Формат</label>
+                    <select name="format" required>
+                        <option value="PDF">PDF</option>
+                        <option value="EXCEL">Excel</option>
+                    </select>
+                </div>
+                <p class="form-actions">
+                    <button type="submit" class="btn btn-primary">Создать отчёт</button>
+                    <a th:href="@{/web/reports}" class="btn btn-secondary">Отмена</a>
+                </p>
+            </form>
+            <p class="text-muted">После нажатия «Создать отчёт» файл будет отправлен на вашу почту и появится в списке ниже.</p>
+        </div>
+    </div>
+</body>
+</html>

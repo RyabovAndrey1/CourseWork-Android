@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:title="@string/admin_panel_title"
+        app:navigationIcon="@android:drawable/ic_menu_close_clear_cancel" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <ImageButton
+            android:id="@+id/buttonCloseAdmin"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/admin_close"
+            android:src="@android:drawable/ic_menu_close_clear_cancel" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:text="@string/admin_panel_title"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6" />
+    </LinearLayout>
+
+    <ScrollView
+        android:id="@+id/statsScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/statsSection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/admin_stats"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="4dp">
+
+                <TextView android:id="@+id/tvTotalUsers" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="0" />
+                <TextView android:id="@+id/tvTotalStudents" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="0" />
+                <TextView android:id="@+id/tvTotalGroups" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="0" />
+                <TextView android:id="@+id/tvTotalFaculties" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="0" />
+                <TextView android:id="@+id/tvTotalSubjects" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="0" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/admin_sections_title"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="4dp"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:id="@+id/adminSectionsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="4dp" />
+    </ScrollView>
+
+</LinearLayout>

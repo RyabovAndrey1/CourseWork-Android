@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="ru">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${pageTitle + ' — Учёт успеваемости'}">Проверка почты</title>
+    <link rel="stylesheet" th:href="@{/css/web.css}"/>
+</head>
+<body>
+    <header th:replace="~{web/fragments/layout :: header(activeSection=${activeSection})}"></header>
+    <div th:replace="~{web/fragments/layout :: role-tabs(activeTab=${activeTab})}"></div>
+    <div class="main-wrap">
+        <h1 class="page-title" th:text="${pageTitle}">Проверка почты</h1>
+        <p th:if="${message}" class="alert alert-success" th:text="${message}"></p>
+        <p th:if="${error}" class="alert alert-error" th:text="${error}"></p>
+
+        <div class="card">
+            <h2>Статус</h2>
+            <p th:if="${mailConfigured}" class="text-success">Почта настроена. Письма при входе, создании отчёта и смене пароля должны отправляться.</p>
+            <p th:unless="${mailConfigured}" class="text-muted">
+                Почта не настроена — письма не отправляются.<br/>
+                Задайте в <code>application.yml</code> (или переменными окружения):<br/>
+                <code>spring.mail.host</code> (например <code>smtp.mail.ru</code>),<br/>
+                <code>spring.mail.username</code> (ваш email),<br/>
+                <code>spring.mail.password</code> (для Mail.ru и Yandex — «пароль приложения», не основной пароль).<br/>
+                Перезапустите приложение после изменения настроек.
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>Отправить тестовое письмо</h2>
+            <form th:action="@{/web/admin/test-email}" method="post" class="form-inline">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <label>На адрес: <input type="email" name="email" placeholder="your@mail.ru" required style="min-width:200px;"/></label>
+                <button type="submit" class="btn btn-primary btn-sm">Отправить</button>
+            </form>
+            <p class="text-muted" style="margin-top:0.5rem;">Если письмо не пришло, проверьте папку «Спам» и текст ошибки выше (если есть).</p>
+        </div>
+    </div>
+</body>
+</html>

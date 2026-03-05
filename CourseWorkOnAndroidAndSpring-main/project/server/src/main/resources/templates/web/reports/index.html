@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="ru">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Отчёты — Учёт успеваемости</title>
+    <link rel="stylesheet" th:href="@{/css/web.css}"/>
+</head>
+<body>
+    <header th:replace="~{web/fragments/layout :: header(activeSection=${activeSection})}"></header>
+    <div th:replace="~{web/fragments/layout :: role-tabs(activeTab=${activeTab})}"></div>
+    <div class="main-wrap">
+        <h1 class="page-title">Отчёты</h1>
+        <p th:if="${message}" class="alert alert-success" th:text="${message}"></p>
+        <p th:if="${error}" class="alert alert-error" th:text="${error}"></p>
+
+        <p class="form-actions">
+            <a th:href="@{/web/reports/create}" class="btn btn-primary" th:text="${isStudent} ? 'Создать мой отчёт' : 'Создать отчёт'">Создать отчёт</a>
+        </p>
+
+        <div class="card">
+            <h2 th:text="${isStudent} ? 'Мои отчёты' : 'Список сформированных отчётов'">Список сформированных отчётов</h2>
+            <!-- Для студента — только фильтр по предмету; для преподавателя/деканата/админа — полные фильтры -->
+            <form th:action="@{/web/reports}" method="get" class="form-inline" style="flex-wrap: wrap; gap: 0.5rem 1rem;" th:if="${isStudent}">
+                <div class="form-group">
+                    <label>Дисциплина</label>
+                    <select name="subjectId">
+                        <option value="">— все —</option>
+                        <option th:each="s : ${subjects}" th:value="${s.id}" th:text="${s.name}" th:selected="${subjectId != null && subjectId == s.id}"></option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-secondary">Применить</button>
+            </form>
+            <form th:action="@{/web/reports}" method="get" class="form-inline" style="flex-wrap: wrap; gap: 0.5rem 1rem;" th:unless="${isStudent}">
+                <div class="form-group">
+                    <label>Тип</label>
+                    <select name="reportType">
+                        <option value="">— все —</option>
+                        <option value="GROUP" th:selected="${reportType == 'GROUP'}">По группе</option>
+                        <option value="SUBJECT" th:selected="${reportType == 'SUBJECT'}">По предмету</option>
+                        <option value="STUDENT" th:selected="${reportType == 'STUDENT'}">По студенту</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Группа</label>
+                    <select name="groupId">
+                        <option value="">— все —</option>
+                        <option th:each="g : ${groups}" th:value="${g.id}" th:text="${g.name}" th:selected="${groupId != null && groupId == g.id}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Предмет</label>
+                    <select name="subjectId">
+                        <option value="">— все —</option>
+                        <option th:each="s : ${subjects}" th:value="${s.id}" th:text="${s.name}" th:selected="${subjectId != null && subjectId == s.id}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Студент</label>
+                    <select name="studentId">
+                        <option value="">— все —</option>
+                        <option th:each="s : ${students}" th:value="${s.id}" th:text="${s.name}" th:selected="${studentId != null && studentId == s.id}"></option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-secondary">Применить фильтры</button>
+            </form>
+            <table class="data-table" style="margin-top: 1rem;">
+                <thead>
+                    <tr>
+                        <th th:text="${isStudent} ? 'Описание' : 'По группе / предмету / студенту'">По группе / предмету / студенту</th>
+                        <th>Дата формирования</th>
+                        <th>Период за который сформирован</th>
+                        <th>Формат</th>
+                        <th>Скачать</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="r : ${reportList}">
+                        <td th:text="${r.description}">—</td>
+                        <td th:text="${r.createdAt}">—</td>
+                        <td th:text="${r.period}">—</td>
+                        <td th:text="${r.format}">—</td>
+                        <td>
+                            <a th:href="@{/web/reports/download/{id}(id=${r.id})}" class="btn btn-secondary btn-sm">Скачать</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(reportList)}"><td colspan="5" class="empty-state" th:text="${isStudent} ? 'Нет сформированных отчётов. Нажмите «Создать мой отчёт».' : 'Нет сформированных отчётов. Нажмите «Создать отчёт».'">Нет сформированных отчётов.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

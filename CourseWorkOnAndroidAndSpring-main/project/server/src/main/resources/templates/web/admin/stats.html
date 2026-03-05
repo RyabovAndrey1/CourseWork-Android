@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="ru">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${pageTitle + ' — Учёт успеваемости'}">Статистика</title>
+    <link rel="stylesheet" th:href="@{/css/web.css}"/>
+</head>
+<body>
+    <header th:replace="~{web/fragments/layout :: header(activeSection=${activeSection})}"></header>
+    <div th:replace="~{web/fragments/layout :: role-tabs(activeTab=${activeTab})}"></div>
+    <div class="main-wrap">
+        <h1 class="page-title" th:text="${pageTitle}">Статистика системы</h1>
+        <div class="card" style="max-width: 420px;">
+            <dl style="display: grid; grid-template-columns: 1fr auto; gap: 0.5rem 2rem;">
+                <dt>Пользователей</dt><dd th:text="${totalUsers}">0</dd>
+                <dt>Студентов</dt><dd th:text="${totalStudents}">0</dd>
+                <dt>Преподавателей</dt><dd th:text="${totalTeachers}">0</dd>
+                <dt>Групп</dt><dd th:text="${totalGroups}">0</dd>
+                <dt>Факультетов</dt><dd th:text="${totalFaculties}">0</dd>
+                <dt>Кафедр</dt><dd th:text="${totalDepartments}">0</dd>
+            </dl>
+        </div>
+    </div>
+</body>
+</html>

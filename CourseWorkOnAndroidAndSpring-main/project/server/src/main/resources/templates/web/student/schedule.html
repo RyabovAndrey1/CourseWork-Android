@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="ru">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${pageTitle + ' — Учёт успеваемости'}">Расписание</title>
+    <link rel="stylesheet" th:href="@{/css/web.css}"/>
+</head>
+<body>
+    <header th:replace="~{web/fragments/layout :: header(activeSection=${activeSection})}"></header>
+    <div class="main-wrap">
+        <h1 class="page-title">Расписание занятий</h1>
+        <p th:if="${studentFullName}" class="text-muted" th:text="'Студент: ' + ${studentFullName}">Студент</p>
+        <div class="card">
+            <p class="text-muted">Клик по дате и дисциплине: здесь отображаются занятия, по которым есть отметка посещаемости или оценка. Присутствие и баллы за занятие.</p>
+            <div class="data-table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Дата</th>
+                            <th>Дисциплина</th>
+                            <th>Присутствовал</th>
+                            <th class="num">Баллы за занятие</th>
+                            <th>Вид работы</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="item : ${scheduleItems}">
+                            <td th:text="${item.lessonDate != null ? #temporals.format(item.lessonDate, 'dd.MM.yyyy') : '—'}">—</td>
+                            <td th:text="${item.subjectName}">—</td>
+                            <td th:text="${item.present ? 'Да' : 'Нет'}">—</td>
+                            <td class="num" th:text="${item.gradeValue != null ? item.gradeValue : '—'}">—</td>
+                            <td th:text="${item.gradeTypeName != null ? item.gradeTypeName : '—'}">—</td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(scheduleItems)}"><td colspan="5" class="empty-state">Нет записей расписания (отметок посещаемости или оценок)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card">
+            <ul class="dashboard-links">
+                <li><a th:href="@{/web/dashboard}">Личный кабинет</a></li>
+                <li><a th:href="@{/web/reports}">Мой отчёт (Excel / PDF)</a></li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

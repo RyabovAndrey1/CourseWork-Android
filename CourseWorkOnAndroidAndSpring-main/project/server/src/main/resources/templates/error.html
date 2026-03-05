@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${status + ' — Ошибка'}">Ошибка</title>
+    <link rel="stylesheet" th:href="@{/css/web.css}"/>
+</head>
+<body class="login-page">
+    <div class="login-card">
+        <h1 th:text="${status}">403</h1>
+        <p class="alert alert-error" th:text="${error}">Forbidden</p>
+        <p th:if="${message}" th:text="${message}">Описание ошибки</p>
+        <p th:if="${status == 403}" class="alert">
+            Возможные причины: устаревшая страница входа после выхода (обновите страницу и войдите снова) или неверный токен безопасности.
+        </p>
+        <p class="link-bottom">
+            <a th:href="@{/web/login}">Вернуться на страницу входа</a>
+        </p>
+    </div>
+</body>
+</html>

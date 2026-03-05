@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="ru">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Личный кабинет студента — Учёт успеваемости</title>
+    <link rel="stylesheet" th:href="@{/css/web.css}"/>
+</head>
+<body>
+    <header th:replace="~{web/fragments/layout :: header(activeSection=${'dashboard'})}"></header>
+    <div class="main-wrap">
+        <h1 class="page-title">Личный кабинет</h1>
+        <div th:if="${currentStudentId == null}" class="card">
+            <p class="empty-state">Нет привязки к записи студента. Обратитесь к администратору.</p>
+        </div>
+        <div th:if="${currentStudentId != null}">
+            <div class="profile-card">
+                <div class="avatar" th:text="${#strings.substring(studentFullName, 0, 1)} ?: 'С'">С</div>
+                <div class="name" th:text="${studentFullName}">Студент</div>
+                <div class="meta">
+                    <span th:if="${groupName}" th:text="'Группа: ' + ${groupName}">Группа</span>
+                    <span th:if="${admissionYear}" th:text="'Год поступления: ' + ${admissionYear}">Год</span>
+                </div>
+                <div class="stats" th:if="${averageGrade != null}">
+                    <span class="stat">Средний балл: <strong th:text="${averageGrade}">—</strong></span>
+                </div>
+            </div>
+            <div class="card">
+                <h2>Оценки</h2>
+                <div class="data-table-wrap" th:if="${grades != null and !grades.isEmpty()}">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Дисциплина</th>
+                                <th>Тип</th>
+                                <th class="num">Балл</th>
+                                <th>Дата</th>
+                                <th>Семестр / Год</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="g : ${grades}">
+                                <td th:text="${g.subjectName}">—</td>
+                                <td th:text="${g.gradeTypeName != null ? g.gradeTypeName : (g.workType != null ? g.workType : '—')}">—</td>
+                                <td class="num" th:text="${g.gradeValue}">—</td>
+                                <td th:text="${g.gradeDate != null ? #temporals.format(g.gradeDate, 'dd.MM.yyyy') : '—'}">—</td>
+                                <td th:text="${g.semester != null && g.academicYear != null ? g.semester + ' / ' + g.academicYear : '—'}">—</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p th:if="${grades == null or grades.isEmpty()}" class="empty-state">Оценок пока нет</p>
+            </div>
+            <div class="card">
+                <h2>Расписание и отчёты</h2>
+                <ul class="dashboard-links">
+                    <li><a th:href="@{/web/student/schedule}">Расписание (даты, дисциплины, посещаемость)</a></li>
+                    <li><a th:href="@{/web/reports}">Скачать мой отчёт (Excel / PDF)</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

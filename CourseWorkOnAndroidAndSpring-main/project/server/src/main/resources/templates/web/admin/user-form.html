@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${pageTitle + ' — Учёт успеваемости'}">Пользователь</title>
+    <link rel="stylesheet" th:href="@{/css/web.css}"/>
+</head>
+<body>
+    <header th:replace="~{web/fragments/layout :: header(activeSection=${activeSection})}"></header>
+    <div th:replace="~{web/fragments/layout :: role-tabs(activeTab=${activeTab})}"></div>
+    <div class="main-wrap">
+        <h1 class="page-title" th:text="${pageTitle}">Пользователь</h1>
+        <p th:if="${message}" class="alert alert-success" th:text="${message}"></p>
+        <p th:if="${error}" class="alert alert-error" th:text="${error}"></p>
+        <div class="card">
+            <form th:action="${user != null && user.userId != null} ? @{/web/admin/users/edit/{id}(id=${user.userId})} : @{/web/admin/users/create}" th:method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <div class="form-group">
+                    <label for="login">Логин</label>
+                    <input id="login" name="login" type="text" required th:value="${user != null} ? ${user.login} : ''" th:readonly="${user != null && user.userId != null}"/>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input id="email" name="email" type="email" required th:value="${user != null} ? ${user.email} : ''"/>
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Фамилия</label>
+                    <input id="lastName" name="lastName" type="text" required th:value="${user != null} ? ${user.lastName} : ''"/>
+                </div>
+                <div class="form-group">
+                    <label for="firstName">Имя</label>
+                    <input id="firstName" name="firstName" type="text" required th:value="${user != null} ? ${user.firstName} : ''"/>
+                </div>
+                <div class="form-group">
+                    <label for="middleName">Отчество</label>
+                    <input id="middleName" name="middleName" type="text" th:value="${user != null} ? ${user.middleName} : ''"/>
+                </div>
+                <div class="form-group">
+                    <label for="role">Роль</label>
+                    <select id="role" name="role">
+                        <option th:each="r : ${roles}" th:value="${r.name()}" th:text="${r.name()}" th:selected="${user != null && user.role != null && user.role.name() == r.name()}"></option>
+                    </select>
+                </div>
+                <div class="form-group" th:if="${user != null && user.userId != null}">
+                    <label><input type="checkbox" name="active" value="true" th:checked="${user.isActive}"/> Активен</label>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                    <a th:href="@{/web/admin/users}" class="btn btn-secondary">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

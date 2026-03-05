@@ -1,0 +1,73 @@
+package ru.ryabov.model;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
+import java.time.OffsetDateTime;
+import java.util.HashSet;
+import java.util.Set;
+
+@Entity
+@Table(name = "users")
+@Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
+    private Long id;
+
+    @Column(nullable = false, unique = true, length = 150)
+    private String username;
+
+    @Column(nullable = false, unique = true, length = 255)
+    private String email;
+
+    @Column(name = "display_name", length = 150)
+    private String displayName;
+
+    @Column(name = "avatar_url")
+    private String avatarUrl;
+
+    @Column(name = "password_hash")
+    private String passwordHash;
+
+    @Column(length = 20)
+    private String role;
+
+    @Column(name = "date_joined")
+    private OffsetDateTime dateJoined;
+
+    @Column(name = "last_login")
+    private OffsetDateTime lastLogin;
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_subscriptions",
+            joinColumns = @JoinColumn(name = "subscriber_id"),
+            inverseJoinColumns = @JoinColumn(name = "subscribed_to_id")
+    )
+    @Builder.Default
+    @ToString.Exclude
+    private Set<User> subscriptions = new HashSet<>();
+
+
+    @ManyToMany(mappedBy = "subscriptions")
+    @Builder.Default
+    @ToString.Exclude
+    private Set<User> subscribers = new HashSet<>();
+
+    @PrePersist
+    public void prePersist() {
+        if (dateJoined == null) dateJoined = OffsetDateTime.now();
+        if (role == null) role = "user";
+    }
+}

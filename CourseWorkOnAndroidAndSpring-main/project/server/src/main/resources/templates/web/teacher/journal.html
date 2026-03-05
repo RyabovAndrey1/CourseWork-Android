@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${pageTitle + ' — Учёт успеваемости'}">Журнал</title>
+    <link rel="stylesheet" th:href="@{/css/web.css}"/>
+</head>
+<body>
+    <header th:replace="~{web/fragments/layout :: header(activeSection=${activeSection})}"></header>
+    <div th:replace="~{web/fragments/layout :: role-tabs(activeTab=${activeTab})}"></div>
+    <div class="main-wrap">
+        <h1 class="page-title">Журнал преподавателя</h1>
+        <p th:if="${message}" class="alert alert-success" th:text="${message}"></p>
+        <p th:if="${error}" class="alert alert-error" th:text="${error}"></p>
+
+        <div class="card">
+            <h2>Фильтры</h2>
+            <form th:action="@{/web/teacher/journal}" method="get" class="form-inline">
+                <input type="hidden" name="page" value="0"/>
+                <div class="form-group">
+                    <label for="groupId">Группа</label>
+                    <select id="groupId" name="groupId">
+                        <option value="">— все —</option>
+                        <option th:each="g : ${groups}" th:value="${g.groupId}" th:text="${g.name}" th:selected="${groupId != null && groupId == g.groupId}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="subjectId">Дисциплина</label>
+                    <select id="subjectId" name="subjectId">
+                        <option value="">— все —</option>
+                        <option th:each="s : ${subjects}" th:value="${s.subjectId}" th:text="${s.name}" th:selected="${subjectId != null && subjectId == s.subjectId}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="gradeTypeId">Тип занятия</label>
+                    <select id="gradeTypeId" name="gradeTypeId">
+                        <option value="">— все —</option>
+                        <option th:each="t : ${gradeTypes}" th:value="${t.typeId}" th:text="${t.name + (t.maxScore != null ? ' (макс. ' + t.maxScore + ')' : '')}" th:selected="${gradeTypeId != null && gradeTypeId == t.typeId}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="dateFrom">Дата с</label>
+                    <input id="dateFrom" name="dateFrom" type="date" th:value="${dateFrom}"/>
+                </div>
+                <div class="form-group">
+                    <label for="dateTo">Дата по</label>
+                    <input id="dateTo" name="dateTo" type="date" th:value="${dateTo}"/>
+                </div>
+                <button type="submit" class="btn btn-primary">Показать</button>
+            </form>
+        </div>
+
+        <p class="form-actions">
+            <a th:href="@{/web/teacher/journal/add}" class="btn btn-primary">Добавить запись</a>
+        </p>
+
+        <div class="card">
+            <h2>Записи (занятия)</h2>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Дата</th>
+                        <th>Группа</th>
+                        <th>Дисциплина</th>
+                        <th>Тип занятия</th>
+                        <th>Студенты (был/не был, баллы)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="lesson : ${lessons}">
+                        <td th:text="${lesson.date != null ? #temporals.format(lesson.date, 'dd.MM.yyyy') : '—'}">—</td>
+                        <td th:text="${lesson.groupName}">—</td>
+                        <td th:text="${lesson.subjectName}">—</td>
+                        <td th:text="${lesson.gradeTypeName}">—</td>
+                        <td>
+                            <table class="inner-table">
+                                <tr th:each="row : ${lesson.students}">
+                                    <td th:text="${row.studentName}">—</td>
+                                    <td th:text="${row.present ? 'Был' : 'Не был'}">—</td>
+                                    <td class="num" th:text="${row.points}">0</td>
+                                </tr>
+                            </table>
+                            <p class="form-actions" style="margin-top: 0.5rem;">
+                                <a th:if="${lesson.groupId != null && lesson.subjectId != null && lesson.gradeTypeId != null}"
+                                   th:href="@{/web/teacher/journal/edit(date=${#temporals.format(lesson.date, 'yyyy-MM-dd')}, groupId=${lesson.groupId}, subjectId=${lesson.subjectId}, gradeTypeId=${lesson.gradeTypeId})}"
+                                   class="btn btn-secondary btn-sm">Редактировать</a>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(lessons)}"><td colspan="5" class="empty-state">Нет записей за выбранный период. Используйте фильтры или нажмите «Добавить запись».</td></tr>
+                </tbody>
+            </table>
+            <div th:if="${lessonPage.totalPages > 1}" class="pagination">
+                <span>Страница <span th:text="${lessonPage.number + 1}">1</span> из <span th:text="${lessonPage.totalPages}">1</span></span>
+                <th:block th:with="baseUrl=${#request.requestURI + '?' + #request.queryString}">
+                    <a th:if="${lessonPage.hasPrevious()}" th:href="@{/web/teacher/journal(page=${lessonPage.number - 1}, groupId=${groupId}, subjectId=${subjectId}, gradeTypeId=${gradeTypeId}, dateFrom=${dateFrom}, dateTo=${dateTo})}">← Назад</a>
+                    <a th:if="${lessonPage.hasNext()}" th:href="@{/web/teacher/journal(page=${lessonPage.number + 1}, groupId=${groupId}, subjectId=${subjectId}, gradeTypeId=${gradeTypeId}, dateFrom=${dateFrom}, dateTo=${dateTo})}">Вперёд →</a>
+                </th:block>
+            </div>
+        </div>
+    </div>
+    <style>
+        .inner-table { width: 100%; border: none; font-size: 0.9rem; }
+        .inner-table td { padding: 0.2rem 0.5rem; border: none; }
+        .pagination { margin-top: 1rem; }
+        .pagination a { margin-right: 1rem; }
+    </style>
+</body>
+</html>

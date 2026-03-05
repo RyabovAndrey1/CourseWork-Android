@@ -1,0 +1,82 @@
+package ru.ryabov.mapper;
+
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import ru.ryabov.dto.PostCardDto;
+import ru.ryabov.dto.PostFullDto;
+import ru.ryabov.model.Post;
+import ru.ryabov.model.RecipeStep;
+import ru.ryabov.model.Tag;
+import ru.ryabov.model.PostStatus;
+import ru.ryabov.util.UrlHelper;
+
+public final class PostMapper {
+    private PostMapper() {}
+
+    public static PostCardDto toCard(Post p) {
+        if (p == null) return null;
+        PostCardDto dto = new PostCardDto();
+        dto.setId(p.getId());
+        dto.setClientId(p.getClientId());
+        dto.setTitle(p.getTitle());
+        dto.setExcerpt(p.getExcerpt());
+        dto.setCoverUrl(UrlHelper.toAbsolute(p.getCoverUrl()));
+        dto.setAuthorId(p.getAuthor() != null ? p.getAuthor().getId() : null);
+        dto.setPostType(p.getPostType());
+        dto.setLikesCount(p.getLikesCount() == null ? 0 : p.getLikesCount());
+        dto.setCookingTimeMinutes(p.getCookingTimeMinutes());
+        dto.setCalories(p.getCalories());
+        dto.setAuthorName(p.getAuthor() != null ? p.getAuthor().getDisplayName() : "Unknown");
+        dto.setAuthorAvatarUrl(p.getAuthor() != null ? UrlHelper.toAbsolute(p.getAuthor().getAvatarUrl()) : null);
+        dto.setPublishedAt(p.getCreatedAt() != null ? p.getCreatedAt().toString() : "Unknown");
+        dto.setViewsCount(p.getViewsCount() == null ? 0 : p.getViewsCount());
+        dto.setTags(p.getTags().stream().map(Tag::getName).collect(Collectors.toSet()));
+        return dto;
+    }
+
+    public static PostFullDto toFull(Post p, boolean isLiked, boolean isSubscribed) {
+        if (p == null) return null;
+        PostFullDto dto = new PostFullDto();
+        dto.setId(p.getId());
+        dto.setClientId(p.getClientId());
+        dto.setPostType(p.getPostType());
+        dto.setStatus(p.getStatus() != null ? p.getStatus().getValue() : PostStatus.DRAFT.getValue());
+        dto.setTitle(p.getTitle());
+        dto.setExcerpt(p.getExcerpt());
+        dto.setContent(p.getContent());
+        dto.setCoverUrl(UrlHelper.toAbsolute(p.getCoverUrl()));
+        dto.setCreatedAt(p.getCreatedAt());
+        dto.setUpdatedAt(p.getUpdatedAt());
+        // author
+        dto.setAuthor(AuthorMapper.toDto(p.getAuthor()));
+        if (dto.getAuthor() != null) dto.getAuthor().setSubscribed(isSubscribed);
+
+        dto.setTags(p.getTags().stream().map(TagMapper::toDto).collect(Collectors.toList()));
+        dto.setIngredients(p.getIngredients().stream().map(IngredientMapper::toDto).collect(Collectors.toList()));
+
+        // Дедуплируем шаги по id и сортируем по order
+        List<RecipeStep> uniqueSteps = p.getSteps().stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(
+                        RecipeStep::getId,
+                        s -> s,
+                        (a, b) -> a,
+                        LinkedHashMap::new
+                ))
+                .values().stream()
+                .sorted(Comparator.comparingInt(RecipeStep::getOrder))
+                .collect(Collectors.toList());
+        dto.setSteps(uniqueSteps.stream().map(StepMapper::toDto).collect(Collectors.toList()));
+
+        dto.setLikesCount(p.getLikesCount() == null ? 0 : p.getLikesCount());
+        dto.setLiked(isLiked);
+        dto.setViewsCount(p.getViewsCount() == null ? 0L : p.getViewsCount());
+        dto.setCalories(p.getCalories());
+        dto.setCookingTimeMinutes(p.getCookingTimeMinutes());
+        return dto;
+    }
+}

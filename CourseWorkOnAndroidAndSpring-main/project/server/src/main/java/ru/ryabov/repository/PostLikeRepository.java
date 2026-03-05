@@ -1,0 +1,21 @@
+package ru.ryabov.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import ru.ryabov.model.PostLike;
+import ru.ryabov.model.PostLikeId;
+
+@Repository
+public interface PostLikeRepository extends JpaRepository<PostLike, PostLikeId> {
+    boolean existsById(PostLikeId postLike);
+
+    default boolean existsByPostIdAndUserId(Long postId, Long userId) {
+        return existsById(new PostLikeId(postId, userId));
+    }
+
+    long countByIdPostId(Long postId);
+
+
+    void deleteById(PostLikeId id);
+
+}

@@ -1,0 +1,9 @@
+package ru.ryabov.service;
+
+import ru.ryabov.dto.SubscriptionDto;
+
+public interface SubscriptionService {
+    SubscriptionDto subscribe(Long currentUserId, Long targetUserId);
+    SubscriptionDto unsubscribe(Long currentUserId, Long targetUserId);
+    SubscriptionDto getStatus(Long currentUserId, Long targetUserId);
+}

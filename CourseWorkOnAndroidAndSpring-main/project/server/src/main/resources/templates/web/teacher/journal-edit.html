@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${pageTitle + ' — Учёт успеваемости'}">Редактировать запись</title>
+    <link rel="stylesheet" th:href="@{/css/web.css}"/>
+</head>
+<body>
+    <header th:replace="~{web/fragments/layout :: header(activeSection=${activeSection})}"></header>
+    <div th:replace="~{web/fragments/layout :: role-tabs(activeTab=${activeTab})}"></div>
+    <div class="main-wrap">
+        <h1 class="page-title">Редактировать запись в журнале</h1>
+        <p th:if="${message}" class="alert alert-success" th:text="${message}"></p>
+        <p th:if="${error}" class="alert alert-error" th:text="${error}"></p>
+
+        <div class="card">
+            <p class="text-muted">
+                Занятие: <strong th:text="${lessonDate}">—</strong>.
+                Измените присутствие и баллы при необходимости, затем нажмите «Сохранить».
+            </p>
+            <form th:action="@{/web/teacher/journal/edit}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="hidden" name="date" th:value="${lessonDate}"/>
+                <input type="hidden" name="groupId" th:value="${groupId}"/>
+                <input type="hidden" name="subjectId" th:value="${subjectId}"/>
+                <input type="hidden" name="gradeTypeId" th:value="${gradeTypeId}"/>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Студент</th>
+                            <th>Присутствовал</th>
+                            <th>Баллы</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="s, i : ${students}" class="journal-row">
+                            <td th:text="${s.fullName}">—</td>
+                            <td>
+                                <input type="hidden" th:name="studentIds" th:value="${s.studentId}"/>
+                                <input type="checkbox" class="present-cb" th:name="presentIds" th:value="${s.studentId}"
+                                       th:checked="${presentMap[s.studentId] != null ? presentMap[s.studentId] : true}"/>
+                            </td>
+                            <td>
+                                <input type="hidden" th:name="gradeIds" th:value="${gradeIdMap[s.studentId] != null ? gradeIdMap[s.studentId] : ''}"/>
+                                <input type="number" class="points-input" th:name="points" min="0" th:max="${maxPoints}" step="1" style="width: 5rem;"
+                                       th:value="${pointsMap[s.studentId] != null ? pointsMap[s.studentId] : 0}"
+                                       th:attr="data-max=${maxPoints}" oninput="clampPoints(this)" title="Целое число от 0 до макс. по типу"/>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p class="form-actions" style="margin-top: 1rem;">
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                    <a th:href="@{/web/teacher/journal}" class="btn btn-secondary">Отмена</a>
+                </p>
+            </form>
+        </div>
+    </div>
+    <script>
+        (function() {
+            var maxPoints = parseInt(document.querySelector('.points-input') && document.querySelector('.points-input').getAttribute('data-max'), 10) || 40;
+            function syncRow(row) {
+                var cb = row.querySelector('.present-cb');
+                var points = row.querySelector('.points-input');
+                if (!cb || !points) return;
+                if (!cb.checked) { points.value = '0'; points.readOnly = true; } else { points.readOnly = false; }
+            }
+            function clampPoints(input) {
+                var max = parseInt(input.getAttribute('data-max'), 10);
+                if (isNaN(max)) return;
+                var v = parseInt(input.value, 10);
+                if (input.value !== '' && !isNaN(v)) { if (v < 0) input.value = 0; else if (v > max) input.value = max; }
+            }
+            document.querySelectorAll('.journal-row').forEach(function(row) {
+                var cb = row.querySelector('.present-cb');
+                var points = row.querySelector('.points-input');
+                if (cb && points) {
+                    syncRow(row);
+                    cb.addEventListener('change', function() { syncRow(row); });
+                }
+            });
+            var postForm = document.querySelector('form[method="post"]');
+            if (postForm) {
+                postForm.addEventListener('submit', function() {
+                    document.querySelectorAll('.journal-row').forEach(function(row) {
+                        var cb = row.querySelector('.present-cb');
+                        var points = row.querySelector('.points-input');
+                        if (cb && points) {
+                            if (!cb.checked) points.value = '0';
+                            else { points.readOnly = false; clampPoints(points); }
+                        }
+                    });
+                });
+            }
+        })();
+        function clampPoints(input) {
+            if (!input) return;
+            var max = parseInt(input.getAttribute('data-max'), 10);
+            if (isNaN(max)) return;
+            var v = parseInt(input.value, 10);
+            if (input.value !== '' && !isNaN(v)) {
+                if (v < 0) input.value = 0;
+                else if (v > max) input.value = max;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Создать отчёт — Учёт успеваемости</title>
+    <link rel="stylesheet" th:href="@{/css/web.css}"/>
+</head>
+<body>
+    <header th:replace="~{web/fragments/layout :: header(activeSection=${activeSection})}"></header>
+    <div th:replace="~{web/fragments/layout :: role-tabs(activeTab=${activeTab})}"></div>
+    <div class="main-wrap">
+        <h1 class="page-title">Создать отчёт</h1>
+        <p th:if="${error}" class="alert alert-error" th:text="${error}"></p>
+
+        <div class="card">
+            <form id="reportCreateForm" th:action="@{/web/reports/create}" method="post" style="max-width: 500px;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <div class="form-group">
+                    <label>Тип отчёта</label>
+                    <select name="reportType" id="reportType" required>
+                        <option value="">— выберите —</option>
+                        <option value="SUBJECT" th:selected="${selectedReportType == 'SUBJECT'}">По предмету</option>
+                        <option value="GROUP" th:selected="${selectedReportType == 'GROUP'}">По группе</option>
+                        <option value="STUDENT" th:selected="${selectedReportType == 'STUDENT'}">По студенту</option>
+                    </select>
+                </div>
+                <div class="form-group" id="subjectBlock" style="display: none;">
+                    <label for="subjectId">Дисциплина <span class="required">*</span></label>
+                    <select id="subjectId" data-report-param="subjectId">
+                        <option value="">— выберите —</option>
+                        <option th:each="s : ${subjects}" th:value="${s.id}" th:text="${s.name}"></option>
+                    </select>
+                </div>
+                <div class="form-group" id="groupBlock" style="display: none;">
+                    <label for="groupId">Группа <span class="required">*</span></label>
+                    <select id="groupSelect" data-report-param="groupId">
+                        <option value="">— выберите —</option>
+                        <option th:each="g : ${groups}" th:value="${g.id}" th:text="${g.name}" th:selected="${selectedGroupId != null && selectedGroupId == g.id}"></option>
+                    </select>
+                </div>
+                <div class="form-group" id="studentBlock" style="display: none;">
+                    <label for="studentId">Студент <span class="required">*</span></label>
+                    <select id="studentId" data-report-param="studentId">
+                        <option value="">— выберите —</option>
+                        <option th:each="s : ${students}" th:value="${s.id}" th:text="${s.name}"></option>
+                    </select>
+                </div>
+                <!-- Значения подставляются скриптом при отправке, чтобы не отправлять пустые поля из скрытых блоков -->
+                <input type="hidden" name="subjectId" id="hiddenSubjectId" value=""/>
+                <input type="hidden" name="groupId" id="hiddenGroupId" value=""/>
+                <input type="hidden" name="studentId" id="hiddenStudentId" value=""/>
+                <div class="form-group">
+                    <label>Период (дата с)</label>
+                    <input type="date" name="periodFrom" required/>
+                </div>
+                <div class="form-group">
+                    <label>Период (дата по)</label>
+                    <input type="date" name="periodTo" required/>
+                </div>
+                <div class="form-group">
+                    <label>Формат</label>
+                    <select name="format" required>
+                        <option value="PDF">PDF</option>
+                        <option value="EXCEL">Excel</option>
+                    </select>
+                </div>
+                <p class="form-actions">
+                    <button type="submit" class="btn btn-primary">Создать</button>
+                    <a th:href="@{/web/reports}" class="btn btn-secondary">Отмена</a>
+                </p>
+            </form>
+            <p class="text-muted">После нажатия «Создать» отчёт будет сформирован, отправлен на email текущего преподавателя, и вы вернётесь на страницу отчётов.</p>
+        </div>
+    </div>
+    <script>
+        (function() {
+            var form = document.getElementById('reportCreateForm');
+            var reportType = document.getElementById('reportType');
+            var groupSelect = document.getElementById('groupSelect');
+            var subjectSelect = document.getElementById('subjectId');
+            var studentSelect = document.getElementById('studentId');
+            var subjectBlock = document.getElementById('subjectBlock');
+            var groupBlock = document.getElementById('groupBlock');
+            var studentBlock = document.getElementById('studentBlock');
+            function toggle() {
+                var v = reportType ? reportType.value : '';
+                if (subjectBlock) { subjectBlock.style.display = v === 'SUBJECT' ? 'block' : 'none'; if (subjectSelect) subjectSelect.required = (v === 'SUBJECT'); }
+                if (groupBlock) { groupBlock.style.display = (v === 'GROUP' || v === 'STUDENT') ? 'block' : 'none'; if (groupSelect) groupSelect.required = (v === 'GROUP' || v === 'STUDENT'); }
+                if (studentBlock) { studentBlock.style.display = v === 'STUDENT' ? 'block' : 'none'; if (studentSelect) studentSelect.required = (v === 'STUDENT'); }
+            }
+            if (reportType) { reportType.onchange = toggle; toggle(); }
+            if (groupSelect && reportType) {
+                groupSelect.onchange = function() {
+                    var g = groupSelect.value;
+                    var t = reportType.value;
+                    if (t === 'STUDENT' && g) { window.location = window.location.pathname + '?reportType=' + encodeURIComponent(t) + '&groupId=' + encodeURIComponent(g); }
+                };
+            }
+            if (form) {
+                form.onsubmit = function() {
+                    var t = reportType ? reportType.value : '';
+                    if (t === 'SUBJECT' && subjectSelect && (!subjectSelect.value || subjectSelect.value === '')) { alert('Выберите дисциплину.'); return false; }
+                    if (t === 'GROUP' && groupSelect && (!groupSelect.value || groupSelect.value === '')) { alert('Выберите группу.'); return false; }
+                    if (t === 'STUDENT' && (studentSelect && (!studentSelect.value || studentSelect.value === '') || groupSelect && (!groupSelect.value || groupSelect.value === ''))) { alert('Выберите группу и студента.'); return false; }
+                    // Копируем только выбранные значения в скрытые поля, чтобы сервер получил нужный id
+                    var hSub = document.getElementById('hiddenSubjectId');
+                    var hGr = document.getElementById('hiddenGroupId');
+                    var hSt = document.getElementById('hiddenStudentId');
+                    if (hSub) hSub.value = (t === 'SUBJECT' && subjectSelect && subjectSelect.value) ? subjectSelect.value : '';
+                    if (hGr) hGr.value = ((t === 'GROUP' || t === 'STUDENT') && groupSelect && groupSelect.value) ? groupSelect.value : '';
+                    if (hSt) hSt.value = (t === 'STUDENT' && studentSelect && studentSelect.value) ? studentSelect.value : '';
+                    return true;
+                };
+            }
+        })();
+    </script>
+</body>
+</html>
